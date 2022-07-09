@@ -32,17 +32,17 @@ public class CloudDatabaseAPI {
             Object classifier = clazz.newInstance().getIdentifierObject();
 
             boolean isPrimitiveOrWrapper = IdentifierClassChecker.isWrapperOrPrimitive(classifier);
-            Validate.isTrue(isPrimitiveOrWrapper, "Identifier Object of \"" + clazz.getSimpleName() + "\" is not of type Primitive or Wrapper. API cannot run.");
+            Validate.isTrue(isPrimitiveOrWrapper, "Identifier Object of \"" + clazz.getCanonicalName() + "\" is not of type Primitive or Wrapper. API cannot run.");
 
             try {
                 Method deserializeMethod = clazz.getMethod("deserialize", Document.class);
                 ICloudBson object = (ICloudBson) deserializeMethod.invoke(null, new Document());
-                Validate.notNull(object, "return type of deserialize method of class \"" + clazz.getSimpleName() + "\" is null!");
+                Validate.notNull(object, "return type of deserialize method of class \"" + clazz.getCanonicalName() + "\" is null!");
             } catch (NoSuchMethodException e) {
-                CloudDatabaseAPI.getInstance().getPlugin().getLogger().severe("did not find the static deserialize method in \"" + clazz.getSimpleName() + "\" API cannot run.");
+                CloudDatabaseAPI.getInstance().getPlugin().getLogger().severe("did not find the static deserialize method in \"" + clazz.getCanonicalName() + "\" API cannot run.");
                 return;
             } catch (IllegalAccessException e) {
-                CloudDatabaseAPI.getInstance().getPlugin().getLogger().severe("deserialize method in \"" + clazz.getSimpleName() + "\" is not accessible! API cannot run.");
+                CloudDatabaseAPI.getInstance().getPlugin().getLogger().severe("deserialize method in \"" + clazz.getCanonicalName() + "\" is not accessible! API cannot run.");
                 return;
             }
         }
