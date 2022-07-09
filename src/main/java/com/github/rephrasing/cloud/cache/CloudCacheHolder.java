@@ -22,13 +22,7 @@ public class CloudCacheHolder<Data extends ICloudBson> {
 
     @SneakyThrows
     public void fetchFromCollection(MongoCollection<Document> data, Class<Data> clazz) {
-        Method deserializeMethod;
-        try {
-            deserializeMethod = clazz.getMethod("deserialize", Document.class);
-        } catch (NoSuchMethodException e) {
-            CloudDatabaseAPI.getInstance().getPlugin().getLogger().severe("Tried to fetch from database collection but did not find the static deserialize method in class " + clazz.getName());
-            return;
-        }
+        Method deserializeMethod = clazz.getMethod("deserialize", Document.class);
 
         for (Document doc : data.find()) {
             deserializeMethod.setAccessible(true);

@@ -4,8 +4,12 @@ import com.github.rephrasing.cloud.bson.ICloudBson;
 import com.github.rephrasing.cloud.bson.IdentifierClassChecker;
 import lombok.SneakyThrows;
 import org.apache.commons.lang.Validate;
+import org.bson.Document;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
 
 public class CloudDatabaseAPI {
 
@@ -28,6 +32,17 @@ public class CloudDatabaseAPI {
 
             boolean isPrimitiveOrWrapper = IdentifierClassChecker.isWrapperOrPrimitive(classifier);
             Validate.isTrue(isPrimitiveOrWrapper, "Identifier Object of Class " + clazz.getName() + " is not of type Primitive or Wrapper. API cannot run.");
+
+            try {
+                Method deserializeMethod = clazz.getMethod("deserialize", Document.class);
+                deserializeMethod.invoke(null, new Document());
+            } catch (NoSuchMethodException e) {
+                CloudDatabaseAPI.getInstance().getPlugin().getLogger().severe("did not find the static deserialize method in class " + clazz.getName() + " API cannot run.");
+                return;
+            } catch (IllegalAccessException e) {
+                CloudDatabaseAPI.getInstance().getPlugin().getLogger().severe("deserialize method in class " + clazz.getName() + " is not accessible! API cannot run.");
+                return;
+            }
         }
         initiated = true;
     }
