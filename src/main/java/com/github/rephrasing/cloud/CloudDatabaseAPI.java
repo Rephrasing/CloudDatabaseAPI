@@ -10,6 +10,7 @@ import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 public class CloudDatabaseAPI {
 
@@ -31,20 +32,22 @@ public class CloudDatabaseAPI {
             Object classifier = clazz.newInstance().getIdentifierObject();
 
             boolean isPrimitiveOrWrapper = IdentifierClassChecker.isWrapperOrPrimitive(classifier);
-            Validate.isTrue(isPrimitiveOrWrapper, "Identifier Object of Class " + clazz.getName() + " is not of type Primitive or Wrapper. API cannot run.");
+            Validate.isTrue(isPrimitiveOrWrapper, "Identifier Object of \"" + clazz.getSimpleName() + "\" is not of type Primitive or Wrapper. API cannot run.");
 
             try {
                 Method deserializeMethod = clazz.getMethod("deserialize", Document.class);
-                deserializeMethod.invoke(null, new Document());
+                ICloudBson object = (ICloudBson) deserializeMethod.invoke(null, new Document());
+                Validate.notNull(object, "return type of deserialize method of class \"" + clazz.getSimpleName() + "\" is null!");
             } catch (NoSuchMethodException e) {
-                CloudDatabaseAPI.getInstance().getPlugin().getLogger().severe("did not find the static deserialize method in class " + clazz.getName() + " API cannot run.");
+                CloudDatabaseAPI.getInstance().getPlugin().getLogger().severe("did not find the static deserialize method in \"" + clazz.getSimpleName() + "\" API cannot run.");
                 return;
             } catch (IllegalAccessException e) {
-                CloudDatabaseAPI.getInstance().getPlugin().getLogger().severe("deserialize method in class " + clazz.getName() + " is not accessible! API cannot run.");
+                CloudDatabaseAPI.getInstance().getPlugin().getLogger().severe("deserialize method in \"" + clazz.getSimpleName() + "\" is not accessible! API cannot run.");
                 return;
             }
         }
         initiated = true;
+        Logger.getLogger("CloudDatabaseAPI").info("Successfully initiated CloudDatabaseAPI by " + plugin.getName());
     }
 
     public static boolean isInitiated() {
